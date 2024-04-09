@@ -1,0 +1,33 @@
+﻿@page "/cpr"
+
+@using BlazorApp1.Models
+@inject ToDoContext _toDoContext;
+@inject AuthenticationStateProvider GetAuthenticationStateAsync;
+
+<PageTitle>Cpr</PageTitle>
+
+<h5>Indtast Cpr nummer:</h5>
+<input type="text" @bind="@_userInputCpr" style="width:160px;height:45px;"/>
+<br />
+<input type="button" value="Submit" style="width:160px;height:45px;" @onclick="SubmitCpr"/>
+
+@code {
+    private string? _userInputCpr;
+    private string email{ get; set; }
+
+    protected async override void OnInitialized()
+    {
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        _userInputCpr = "Hej";
+    }
+    private void SubmitCpr()
+    {
+        Models.Cpr Value = new Models.Cpr();
+        Value.User = email;
+        Value.CprNr = _userInputCpr;
+        _toDoContext.Cprs.Add(Value);
+        _toDoContext.SaveChanges();
+
+    }
+}
