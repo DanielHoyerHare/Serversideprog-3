@@ -1,7 +1,80 @@
 ﻿@page "/"
 
+@using BlazorApp1.Models
+@inject ToDoContext _toDoContext;
+@inject AuthenticationStateProvider asp;
+
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+@if(name == null)
+{
+    <h1>Velkommen!</h1>
+    <h3>Registrer en konto eller log ind for at bruge siden!</h3>
+}
+else
+{
+    <h3>@name</h3>
+    @if (cprNr == null)
+    {
+        <h5>Opret et Cpr nummer:</h5>
+    }
+    else
+    {
+        <h5>Indtast Cpr nummer:</h5>
+    }
+    <input type="text" @bind="@_userInputCpr" style="width:160px;height:45px;" @onkeyup="@Enter" />
+    @if (error)
+    {
+        <h5>Hov, du tastede vidst forkert! :/</h5>
+    }
+    else
+    {
+        <br/>
+    }
+    <input type="button" value="Submit" style="width:160px;height:45px;" @onclick="SubmitCpr" />
+}
 
-Welcome to your new app.
+@code {
+    private string? _userInputCpr;
+    private string? name { get; set; }
+    private string? cprNr { get; set; }
+    private bool error { get; set; }
+
+    protected async override void OnInitialized()
+    {
+        //Henter nuværende bruger
+        var authstate = await asp.GetAuthenticationStateAsync();
+        name = authstate.User.Identity.Name;
+        //Henter cpr info og gemmer hvis det eksistere
+        Cpr cprContext = _toDoContext.Cprs.FirstOrDefault(x => x.User == name);
+        if (cprContext != null) cprNr = cprContext.CprNr;
+    }
+    private void SubmitCpr()
+    {
+        if (cprNr == null)
+        {
+            Cpr Value = new Cpr
+            {
+                User = name, 
+                CprNr = _userInputCpr
+            };
+            _toDoContext.Cprs.Add(Value);
+            _toDoContext.SaveChanges();
+            return;
+        }
+        if (cprNr == _userInputCpr)
+        {
+            error = false;
+            return;
+        }
+        error = true;
+    }
+
+    public void Enter(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            SubmitCpr();
+        }
+    }
+}
