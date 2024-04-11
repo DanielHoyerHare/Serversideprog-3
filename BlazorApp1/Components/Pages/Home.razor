@@ -1,76 +1,69 @@
 ﻿@page "/"
 
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Policy = "AuthenticatedUser")]
+
 @using BlazorApp1.Models
+@using BlazorApp1.Codes
 @inject ToDoContext _toDoContext;
-@inject AuthenticationStateProvider asp;
+@inject CprSubmitHandler _csb;
+@inject HashingHandler _hashHandler;
+@inject AuthenticationStateProvider _asp;
 
 <PageTitle>Home</PageTitle>
 
-@if(name == null)
+<h3>@name</h3>
+@if (cprNr == null)
 {
-    <h1>Velkommen!</h1>
-    <h3>Registrer en konto eller log ind for at bruge siden!</h3>
+    <h5>Opret et Cpr nummer:</h5>
 }
 else
 {
-    <h3>@name</h3>
-    @if (cprNr == null)
-    {
-        <h5>Opret et Cpr nummer:</h5>
-    }
-    else
-    {
-        <h5>Indtast Cpr nummer:</h5>
-    }
-    <input type="text" @bind="@_userInputCpr" style="width:160px;height:45px;" @onkeyup="@Enter" />
-    @if (error)
-    {
-        <h5>Hov, du tastede vidst forkert! :/</h5>
-    }
-    else
-    {
-        <br/>
-    }
-    <input type="button" value="Submit" style="width:160px;height:45px;" @onclick="SubmitCpr" />
+    <h5>Indtast Cpr nummer:</h5>
 }
+<input type="text" @bind="@_userInputCpr" style="width:160px;height:45px;" @onkeyup="@Enter" />
+@if (error)
+{
+    <h5>Hov, du tastede vidst forkert! :/</h5>
+}
+else
+{
+    <br/>
+}
+<input type="button" value="Submit" style="width:160px;height:45px;" @onclick="SubmitCpr" />
+
 
 @code {
     private string? _userInputCpr;
     private string? name { get; set; }
     private string? cprNr { get; set; }
     private bool error { get; set; }
+    private bool auth { get; set; }
 
     protected async override void OnInitialized()
     {
+        string hashedValue = _hashHandler.BCryptHashing("test");
+        bool result = _hashHandler.BCryptVerifyHashing("test", hashedValue);
+
         //Henter nuværende bruger
-        var authstate = await asp.GetAuthenticationStateAsync();
+        var authstate = await _asp.GetAuthenticationStateAsync();
         name = authstate.User.Identity.Name;
-        //Henter cpr info og gemmer hvis det eksistere
-        Cpr cprContext = _toDoContext.Cprs.FirstOrDefault(x => x.User == name);
-        if (cprContext != null) cprNr = cprContext.CprNr;
-    }
-    private void SubmitCpr()
-    {
-        if (cprNr == null)
-        {
-            Cpr Value = new Cpr
-            {
-                User = name, 
-                CprNr = _userInputCpr
-            };
-            _toDoContext.Cprs.Add(Value);
-            _toDoContext.SaveChanges();
-            return;
-        }
-        if (cprNr == _userInputCpr)
-        {
-            error = false;
-            return;
-        }
-        error = true;
+        auth = authstate.User.Identity.IsAuthenticated;
     }
 
-    public void Enter(KeyboardEventArgs e)
+    private void SubmitCpr()
+    {
+        if (auth)
+        {
+            Cpr Value = new Cpr
+                {
+                    User = name,
+                    CprNr = _userInputCpr
+                };
+            error = _csb.SubmitCpr(_toDoContext, Value);
+        }
+    }
+
+    private void Enter(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
         {

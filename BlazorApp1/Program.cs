@@ -1,3 +1,4 @@
+using BlazorApp1.Codes;
 using BlazorApp1.Components;
 using BlazorApp1.Components.Account;
 using BlazorApp1.Data;
@@ -16,6 +17,8 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+builder.Services.AddSingleton<HashingHandler>();
+builder.Services.AddSingleton<CprSubmitHandler>();
 
 builder.Services.AddAuthentication(options =>
     {
@@ -51,6 +54,14 @@ builder.Configuration.GetSection("Kestrel:Endpoint:Https:Certificate:Path").Valu
 
 string kestrelPass = builder.Configuration.GetValue<string>("KestrelPass");
 builder.Configuration.GetSection("Kestrel:Endpoint:Https:Certificate:Password").Value = kestrelPass;
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AuthenticatedUser", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+    });
+});
 
 var app = builder.Build();
 
