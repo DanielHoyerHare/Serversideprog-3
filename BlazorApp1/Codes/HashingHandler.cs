@@ -4,9 +4,9 @@ using System.Text;
 
 namespace BlazorApp1.Codes;
 
-public class HashingHandler
+public static class HashingHandler
 {
-    public string MD5Hashing(string textToHash)
+    public static string MD5Hashing(string textToHash)
     {
         MD5 md5 = MD5.Create();
 
@@ -16,7 +16,7 @@ public class HashingHandler
         return Convert.ToBase64String(hashedValueBytes);
     }
 
-    public string SHAHashing(string textToHash)
+    public static string SHAHashing(string textToHash)
     {
         SHA256 sha256 = SHA256.Create();
 
@@ -26,7 +26,7 @@ public class HashingHandler
         return Convert.ToBase64String(hashedValueBytes);
     }
 
-    public string HMACHashing(string textToHash)
+    public static string HMACHashing(string textToHash)
     {
         byte[] myKey = Encoding.ASCII.GetBytes("MyNiceKey");
         byte[] inputBytes = Encoding.ASCII.GetBytes(textToHash);
@@ -39,7 +39,7 @@ public class HashingHandler
         return Convert.ToBase64String(hashedValueBytes);
     }
 
-    public string PBKDF2Hashing(string textToHash)
+    public static string PBKDF2Hashing(string textToHash)
     {
         byte[] inputBytes = Encoding.ASCII.GetBytes(textToHash);
         byte[] salt = Encoding.ASCII.GetBytes("MyNiceKey");
@@ -51,8 +51,8 @@ public class HashingHandler
         byte[] hashedValueBytes = Rfc2898DeriveBytes.Pbkdf2(inputBytes, salt, itirations, hashAlgorythm, outputLength);
         return Convert.ToBase64String(hashedValueBytes);
     }
-    
-    public string BCryptHashing(string textToHash)
+
+    public static string BCryptHashing(string textToHash)
     {
         //return BCrypt.Net.BCrypt.HashPassword(textToHash);
 
@@ -66,7 +66,7 @@ public class HashingHandler
         return BCrypt.Net.BCrypt.HashPassword(textToHash, salt, enhanceEntropy, hashType);
     }
 
-    public bool BCryptVerifyHashing(string textToHash, string hashedValueFromDB)
+    public static bool BCryptVerifyHashing(string textToHash, string hashedValueFromDB)
     {
         //return BCrypt.Net.BCrypt.Verify(textToHash, hashedValueFromDB);
 

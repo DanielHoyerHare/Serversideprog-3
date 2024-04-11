@@ -17,8 +17,8 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
-builder.Services.AddSingleton<HashingHandler>();
 builder.Services.AddSingleton<CprSubmitHandler>();
+builder.Services.AddSingleton<ToDoHandler>();
 
 builder.Services.AddAuthentication(options =>
     {

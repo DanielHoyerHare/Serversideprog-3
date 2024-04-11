@@ -6,8 +6,8 @@
 @using BlazorApp1.Codes
 @inject ToDoContext _toDoContext;
 @inject CprSubmitHandler _csb;
-@inject HashingHandler _hashHandler;
 @inject AuthenticationStateProvider _asp;
+@inject NavigationManager nm;
 
 <PageTitle>Home</PageTitle>
 
@@ -41,13 +41,11 @@ else
 
     protected async override void OnInitialized()
     {
-        string hashedValue = _hashHandler.BCryptHashing("test");
-        bool result = _hashHandler.BCryptVerifyHashing("test", hashedValue);
-
         //Henter nuværende bruger
         var authstate = await _asp.GetAuthenticationStateAsync();
         name = authstate.User.Identity.Name;
         auth = authstate.User.Identity.IsAuthenticated;
+        cprNr = _csb.getCprNumber(_toDoContext, name);
     }
 
     private void SubmitCpr()
@@ -59,7 +57,7 @@ else
                     User = name,
                     CprNr = _userInputCpr
                 };
-            error = _csb.SubmitCpr(_toDoContext, Value);
+            error = _csb.SubmitCpr(_toDoContext, Value, nm);
         }
     }
 

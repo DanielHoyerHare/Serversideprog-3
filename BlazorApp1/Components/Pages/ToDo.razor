@@ -1,0 +1,73 @@
+﻿@page "/ToDo"
+
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Policy = "AuthenticatedUser")]
+
+@using BlazorApp1.Models
+@using BlazorApp1.Codes
+@inject ToDoContext _toDoContext;
+@inject ToDoHandler _tdh;
+@inject AuthenticationStateProvider _asp;
+
+<PageTitle>ToDo</PageTitle>
+
+<h3>@name</h3>
+<h5>Indtast ny todo item:</h5>
+<input type="text" @bind="@_userInputToDo" style="width:160px;height:45px;" @onkeyup="@Enter" />
+<br />
+<input type="button" value="Submit" style="width:160px;height:45px;" @onclick="SubmitToDo" />
+<table class="table">
+    <thead>
+        <tr>
+            <th>To Do:</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var toDoItem in _toDoList)
+        {
+            <tr>
+                <td>@toDoItem.Item</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@code {
+    private string? _userInputToDo;
+    private string? name { get; set; }
+    private bool auth { get; set; }
+    private int _userId;
+    private List<ToDoList> _toDoList { get; set; }
+
+    protected async override void OnInitialized()
+    {
+        //Henter nuværende bruger
+        var authstate = await _asp.GetAuthenticationStateAsync();
+        name = authstate.User.Identity.Name;
+        Cpr? cprContext = _toDoContext.Cprs.FirstOrDefault(x => x.User == name);
+        if (cprContext != null)
+        {
+            _userId = cprContext.Id;
+            _toDoList = _toDoContext.ToDoLists.Where(x => x.UserId == _userId).ToList();
+        }
+    }
+
+    private void SubmitToDo()
+    {
+        ToDoList _toDoItem = new ToDoList
+            {
+                UserId = _userId,
+                Item = _userInputToDo
+            };
+        bool result = _tdh.SubmitToDo(_toDoContext, _toDoItem);
+        if (result) _toDoList.Add(_toDoItem);
+    }
+
+    private void Enter(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            SubmitToDo();
+        }
+    }
+}
