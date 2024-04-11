@@ -4,6 +4,12 @@ using System.Text;
 
 namespace BlazorApp1.Codes;
 
+public enum ReturnType
+{
+    None,
+    String,
+    ByteArray
+}
 public static class HashingHandler
 {
     public static string MD5Hashing(string textToHash)
@@ -52,7 +58,7 @@ public static class HashingHandler
         return Convert.ToBase64String(hashedValueBytes);
     }
 
-    public static string BCryptHashing(string textToHash)
+    public static dynamic? BCryptHashing(string textToHash, ReturnType returnType)
     {
         //return BCrypt.Net.BCrypt.HashPassword(textToHash);
 
@@ -63,7 +69,17 @@ public static class HashingHandler
         string salt = BCrypt.Net.BCrypt.GenerateSalt();
         bool enhanceEntropy = true;
         HashType hashType = HashType.SHA256;
-        return BCrypt.Net.BCrypt.HashPassword(textToHash, salt, enhanceEntropy, hashType);
+
+        string encryptedAsString = BCrypt.Net.BCrypt.HashPassword(textToHash, salt, enhanceEntropy, hashType);
+        if (returnType == ReturnType.String)
+        {
+            return encryptedAsString;
+        }
+        if (returnType == ReturnType.ByteArray)
+        {
+            return Encoding.ASCII.GetBytes(encryptedAsString);
+        }
+        return null;
     }
 
     public static bool BCryptVerifyHashing(string textToHash, string hashedValueFromDB)

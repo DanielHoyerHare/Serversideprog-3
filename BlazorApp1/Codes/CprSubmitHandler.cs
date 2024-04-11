@@ -11,7 +11,7 @@ public class CprSubmitHandler
         string? cprNr = getCprNumber(_toDoContext, Value.User);
         if (cprNr == null)
         {
-            Value.CprNr = HashingHandler.BCryptHashing(Value.CprNr);
+            Value.CprNr = HashingHandler.BCryptHashing(Value.CprNr, ReturnType.String);
             _toDoContext.Cprs.Add(Value);
             _toDoContext.SaveChanges();
             nm.NavigateTo("ToDo");
