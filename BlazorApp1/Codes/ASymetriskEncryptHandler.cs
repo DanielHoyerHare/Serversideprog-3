@@ -8,22 +8,26 @@ public class ASymetriskEncryptHandler
 {
     private string _privateKey;
     private string _publicKey;
-    private string path = @"C:\Users\Tec\Desktop\xmlKey.txt";
+    private string privatePath;
+    private string publicPath;
     public ASymetriskEncryptHandler()
     {
-        if (File.Exists(path))
-        {
-            var keys = File.ReadAllText(path);
-        }
+        string rootPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        rootPath = Path.Combine(rootPath, ".aspnet");
+
+        privatePath = Path.Combine(rootPath, "xmlPrivateKey.pem");
+        publicPath = Path.Combine(rootPath, "xmlPublicKey.pem");
+
+        if (File.Exists(privatePath)) _privateKey = File.ReadAllText(privatePath);
+        if (File.Exists(publicPath)) _publicKey = File.ReadAllText(publicPath);
         else
         {
             using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
             {
                 _privateKey = rsa.ToXmlString(true);
                 _publicKey = rsa.ToXmlString(false);
-                File.WriteAllText(path, _privateKey);
-                string[] keys = [_privateKey, _publicKey];
-                File.WriteAllLines(path, keys);
+                File.WriteAllText(privatePath, _privateKey);
+                File.WriteAllText(publicPath, _publicKey);
             }
         }
     }
