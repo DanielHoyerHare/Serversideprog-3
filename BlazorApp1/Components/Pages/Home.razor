@@ -11,7 +11,6 @@
 @inject VerifiedCpr vc;
 
 @inject SymetriskEncryptHandler _seh;
-@inject ASymetriskEncryptHandler _aseh;
 
 <PageTitle>Home</PageTitle>
 
@@ -45,9 +44,6 @@ else
 
     protected async override void OnInitialized()
     {
-        string asehEnc = _aseh.EncryptAsymetrisk("Amen");
-        string asehDe = _aseh.DecryptAsymetrisk(asehEnc);
-
         // string sehEnc = _seh.EncryptData("ahmen");
         // string sehDe = _seh.DecryptData(sehEnc);
 

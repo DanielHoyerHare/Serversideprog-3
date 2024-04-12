@@ -8,12 +8,23 @@ public class ASymetriskEncryptHandler
 {
     private string _privateKey;
     private string _publicKey;
+    private string path = @"C:\Users\Tec\Desktop\xmlKey.txt";
     public ASymetriskEncryptHandler()
-    { 
-        using(RSACryptoServiceProvider rsa = new RSACryptoServiceProvider()) 
-        { 
-            _privateKey = rsa.ToXmlString(true);
-            _publicKey = rsa.ToXmlString(false);
+    {
+        if (File.Exists(path))
+        {
+            var keys = File.ReadAllText(path);
+        }
+        else
+        {
+            using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
+            {
+                _privateKey = rsa.ToXmlString(true);
+                _publicKey = rsa.ToXmlString(false);
+                File.WriteAllText(path, _privateKey);
+                string[] keys = [_privateKey, _publicKey];
+                File.WriteAllLines(path, keys);
+            }
         }
     }
 
