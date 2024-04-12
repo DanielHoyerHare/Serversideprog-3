@@ -7,29 +7,34 @@
 @inject ToDoContext _toDoContext;
 @inject ToDoHandler _tdh;
 @inject AuthenticationStateProvider _asp;
+@inject VerifiedCpr vc;
+@inject NavigationManager nm;
 
 <PageTitle>ToDo</PageTitle>
 
 <h3>@name</h3>
-<h5>Indtast ny todo item:</h5>
-<input type="text" @bind="@_userInputToDo" style="width:160px;height:45px;" @onkeyup="@Enter" />
-<br />
-<input type="button" value="Submit" style="width:160px;height:45px;" @onclick="SubmitToDo" />
-<table class="table">
-    <thead>
-        <tr>
-            <th>To Do:</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var toDoItem in _toDoList)
-        {
+@if (vc.verified)
+{
+    <h5>Indtast ny todo item:</h5>
+    <input type="text" @bind="@_userInputToDo" style="width:160px;height:45px;" @onkeyup="@Enter" />
+    <br />
+    <input type="button" value="Submit" style="width:160px;height:45px;" @onclick="SubmitToDo" />
+    <table class="table">
+        <thead>
             <tr>
-                <td>@toDoItem.Item</td>
+                <th>To Do:</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var toDoItem in _toDoList)
+            {
+                <tr>
+                    <td>@toDoItem.Item</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 
 @code {
@@ -50,6 +55,11 @@
             _userId = cprContext.Id;
             _toDoList = _toDoContext.ToDoLists.Where(x => x.UserId == _userId).ToList();
         }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!vc.verified) nm.NavigateTo("");
     }
 
     private void SubmitToDo()

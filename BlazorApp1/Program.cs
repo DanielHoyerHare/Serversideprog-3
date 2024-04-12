@@ -19,6 +19,10 @@ builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 builder.Services.AddSingleton<CprSubmitHandler>();
 builder.Services.AddSingleton<ToDoHandler>();
+builder.Services.AddScoped<VerifiedCpr>();
+
+builder.Services.AddSingleton<SymetriskEncryptHandler>();
+builder.Services.AddSingleton<ASymetriskEncryptHandler>();
 
 builder.Services.AddAuthentication(options =>
     {

@@ -8,6 +8,10 @@
 @inject CprSubmitHandler _csb;
 @inject AuthenticationStateProvider _asp;
 @inject NavigationManager nm;
+@inject VerifiedCpr vc;
+
+@inject SymetriskEncryptHandler _seh;
+@inject ASymetriskEncryptHandler _aseh;
 
 <PageTitle>Home</PageTitle>
 
@@ -41,6 +45,12 @@ else
 
     protected async override void OnInitialized()
     {
+        string asehEnc = _aseh.EncryptAsymetrisk("Amen");
+        string asehDe = _aseh.DecryptAsymetrisk(asehEnc);
+
+        // string sehEnc = _seh.EncryptData("ahmen");
+        // string sehDe = _seh.DecryptData(sehEnc);
+
         //Henter nuværende bruger
         var authstate = await _asp.GetAuthenticationStateAsync();
         name = authstate.User.Identity.Name;
@@ -50,6 +60,7 @@ else
 
     private void SubmitCpr()
     {
+        //Submitter cpr hvis bruger er logget ind
         if (auth)
         {
             Cpr Value = new Cpr
@@ -57,7 +68,12 @@ else
                     User = name,
                     CprNr = _userInputCpr
                 };
-            error = _csb.SubmitCpr(_toDoContext, Value, nm);
+            error = _csb.SubmitCpr(_toDoContext, Value);
+            if (!error)
+            {
+                vc.verified = true;
+                nm.NavigateTo("ToDo");
+            }
         }
     }
 

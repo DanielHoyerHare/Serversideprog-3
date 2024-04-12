@@ -5,7 +5,7 @@ namespace BlazorApp1.Codes;
 
 public class CprSubmitHandler
 {
-    public bool SubmitCpr(ToDoContext _toDoContext, Cpr Value, NavigationManager nm)
+    public bool SubmitCpr(ToDoContext _toDoContext, Cpr Value)
     {
         if (Value.CprNr == null) return true;
         string? cprNr = getCprNumber(_toDoContext, Value.User);
@@ -14,14 +14,9 @@ public class CprSubmitHandler
             Value.CprNr = HashingHandler.BCryptHashing(Value.CprNr, ReturnType.String);
             _toDoContext.Cprs.Add(Value);
             _toDoContext.SaveChanges();
-            nm.NavigateTo("ToDo");
             return false;
         }
-        if (HashingHandler.BCryptVerifyHashing(Value.CprNr, cprNr))
-        {
-            nm.NavigateTo("ToDo");
-            return false;
-        }
+        if (HashingHandler.BCryptVerifyHashing(Value.CprNr, cprNr)) return false;
         return true;
     }
 
